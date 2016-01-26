@@ -6,60 +6,53 @@
 ;
 (function ($) {
     "use strict";
-    var MouseMe = function (element, options) {
-        this.ele = element;
-        this.options = options;
-        return "undefined" != typeof this.init && this.init.apply(this, arguments)
-    };
-    MouseMe.prototype = {
-        init: function () {
-            this.target = $(this.ele);
-            this.touch = ("ontouchend" in document);
-            this.options.onHold && (this._addMouseDownEvent() || this._addMouseUpEvent());
-            this.options.onMultiClick && this._addClickEvent();
-        },
-        _addMouseUpEvent: function () {
-            var _this = this;
-            _this.target.on(!this.touch ? "mouseup mouseout" : "touchend", function () {
-                clearTimeout(_this.powerInterval);
-            });
-        },
-        _addMouseDownEvent: function () {
-            var _this = this;
-            this.target.on(!this.touch ? "mousedown" : "touchstart", function () {
-                _this.powerInterval = setTimeout(function () {
-                    _this.options.onHold && _this.options.onHold(_this.ele);
-                }, _this.options.holdTime);
-            })
-        },
-        _addClickEvent: function () {
+    var istouch = ("ontouchend" in document);
+    $.event.special.multiClick = {
+        setup: function (options) {
+            var defaults = {
+                times: 3,//监听鼠标多次点击的次数
+                interval: 500//监听鼠标点击次数时间段
+            };
+            var opts = $.extend({}, defaults, options);
             var _this = this, times = 0, clickout = null;
-            this.target.on(this.touch ? "touchstart" : "click", function () {
-                times = (times + 1) % _this.options.multiNum;
+            $.event.add(_this, istouch ? "touchstart" : "click", function () {
+                times = (times + 1) % opts.times;
                 clickout && clearTimeout(clickout);
                 if (times == 0) {
-                    _this.options.onMultiClick && _this.options.onMultiClick(this);
+                    $.event.trigger('multiClick', null, _this);
                 } else {
                     clickout = setTimeout(function () {
                         times = 0;
-                    }, _this.options.multiInterval)
+                    }, opts.interval)
                 }
-            })
+            });
+        },
+        teardown: function () {
+            var elem = this;
+            $.event.remove(elem, istouch ? "touchstart" : "click");
         }
     };
-    var defaults = {
-        holdTime: 1000,//鼠标长按触发事件的时间
-        onHold: null, //鼠标长按指定时间事件
-        multiNum: 3,//监听鼠标多次点击的次数
-        multiInterval: 500,//监听鼠标点击次数时间段
-        onMultiClick: null//鼠标达到点击次数的触发事件
-    };
-    $.fn.mouseMe = function (method) {
-        return this.each(function () {
-            var opts = $.extend({}, defaults, typeof method == 'object' && method);
-            var ui = new MouseMe(this, opts);
-            $._data(this, "MouseMe", ui);
-        });
+    $.event.special.holdTime = {
+        setup: function (options) {
+            var defaults = {
+                times: 2000
+            };
+            var opts = $.extend({}, defaults, options);
+            var _this = this, powerInterval = null;
+            $.event.add(_this, istouch ? "mouseup mouseout" : "touchend", function () {
+                clearTimeout(powerInterval);
+            });
+            $.event.add(_this, !istouch ? "mousedown" : "touchstart", function () {
+                $.event.trigger(!istouch ? "click" : "touchstart", null, _this);
+                powerInterval = setTimeout(function () {
+                    $.event.trigger('holdTime', null, _this);
+                }, opts.time);
+            })
+        },
+        teardown: function () {
+            var elem = this;
+            $.event.remove(elem, !istouch ? "mouseup mouseout" : "touchend");
+            $.event.remove(elem, !istouch ? "mousedown" : "touchstart");
+        }
     };
 })(jQuery);
-
