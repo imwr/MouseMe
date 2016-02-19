@@ -40,15 +40,14 @@
             };
             var opts = $.extend({}, defaults, options);
             var _this = this, powerInterval = null;
-            $.event.add(_this, istouch ? "mouseup mouseout" : "touchend", function () {
-                clearTimeout(powerInterval);
-            });
             $.event.add(_this, !istouch ? "mousedown" : "touchstart", function () {
-                $.event.trigger(!istouch ? "click" : "touchstart", null, _this);
                 powerInterval = setTimeout(function () {
                     $.event.trigger('holdTime', null, _this);
                 }, opts.time);
             })
+            $.event.add(_this, !istouch ? "mouseup mouseout" : "touchend", function () {
+                clearTimeout(powerInterval);
+            });
         },
         teardown: function () {
             var elem = this;
