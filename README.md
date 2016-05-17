@@ -4,6 +4,7 @@
 ###holdTime event options###
 ```html
 time: 2000,//监听鼠标长按事件的时间
+onBegin : null //鼠标刚按下时触发的事件，参数（自身dom节点）
 ```
 
 ###multiClick event options###

@@ -36,15 +36,21 @@
     $.event.special.holdTime = {
         setup: function (options) {
             var defaults = {
-                times: 2000
+                times: 1500,
+                onBegin: null // 鼠标刚按下时触发的事件，参数（自身dom节点）
             };
             var opts = $.extend({}, defaults, options);
             var _this = this, powerInterval = null;
             $.event.add(_this, !istouch ? "mousedown" : "touchstart", function () {
+                _this.holdTime = false;
+                if (opts.onBegin && typeof opts.onBegin == "function") {
+                    opts.onBegin(_this);
+                }
                 powerInterval = setTimeout(function () {
+                    _this.holdTime = true;
                     $.event.trigger('holdTime', null, _this);
-                }, opts.time);
-            })
+                }, opts.times);
+            });
             $.event.add(_this, !istouch ? "mouseup mouseout" : "touchend", function () {
                 clearTimeout(powerInterval);
             });
