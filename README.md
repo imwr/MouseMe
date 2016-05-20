@@ -12,6 +12,7 @@ onBegin : null //鼠标刚按下时触发的事件，参数（自身dom节点）
 times: 3,//监听鼠标多次点击的次数
 interval: 500//监听鼠标点击次数时间段
 ```
-
+<!--
 ###demo###
 See [here](http://tt-cc.cn/front-end/jquery-plugins/mouseme)
+-->
