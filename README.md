@@ -14,5 +14,5 @@ interval: 500//监听鼠标点击次数时间段
 ```
 <!--
 ###demo###
-See [here](http://tt-cc.cn/front-end/jquery-plugins/mouseme)
+See [here](http://tt-cc.cc/front-end/jquery-plugins/mouseme)
 -->
